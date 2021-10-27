@@ -79,7 +79,7 @@ def MH_calc(feature_type2, aerosol_class2,filedate,roi_profiles, lat2, lon2, aut
 
 
         # Generating altitude data
-        # FIXME: WHY IS THERE A -0.5
+        
         for i in range (0, 290):
             alt[i] = -0.5 + i*0.03
 
@@ -102,7 +102,7 @@ def MH_calc(feature_type2, aerosol_class2,filedate,roi_profiles, lat2, lon2, aut
         
         
         # --------------------------------------------------------------------------------------------------
-        # Calculating the mixing heights and copying thdem to csv
+        # Calculating the mixing heights and copying them to csv
         # Main idea here: if transition from ground to air has aerosol immediately, we keep. 
         # --------------------------------------------------------------------------------------------------
 

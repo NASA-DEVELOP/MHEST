@@ -12,7 +12,7 @@ Requirements for running code: CALIPSO LiDAR Level 2 Vertical Feature Mask HDF f
 In ASMOKRE_02.22.2021: 
 We loop through CALIPSO HDF-format files on days of interest and extract data at relevant latitudes. We use bit-wise extraction to reveal:
 1) feature classification and
-2) feature sub-type. 
+2) feature sub-type
 across the different transects. We then save the data to a specified directory. 
 Inputs: list of dates, lat / lon of interest (called 'matches'); CALIPSO HDF files
 

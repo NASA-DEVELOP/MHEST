@@ -1,0 +1,2 @@
+,OBJECTID,Latitude_min,Longitude_min,Latitude_max,Longitude_max,Date,Time_UTC,Year,julian_day,MODIS_filename,time_offset
+109,110,44.8775,-121.1731,45.0839,-121.2485,2010-08-25,21:15,2006,215,MOD07_L2.A2006215.1945.061.2017266080345.hdf,130.0
