@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt
 # In[17]:
 
 
-basepath = "Testfiles_softwarerelease/MOD07/" # set main working directory - CHANGE 
+basepath = "Testfiles_softwarerelease/MOD07/" # set main working directory - CHANGE
 csvpath = "Testfiles_softwarerelease/input_csvs/" # path to the folder with the csv file containing the smoke plume event info - CHANGE
 outputpath = 'Testfiles_softwarerelease/outputs/'
 if not os.path.exists(outputpath):
@@ -44,6 +44,7 @@ def filter_lat(lat):
     lat[lat < -90] = np.NaN
     lat[lat > 90] = np.NaN
     return lat
+
 
 def filter_lon(lon):
     import numpy as np
@@ -67,18 +68,18 @@ def inflection_point(array):
     # OUTPUTS:
     # - idx = index of the inflection point
     # SYNTAX: idx = inflection_point(array)
-    a2 = np.diff(array) # take the differences of the array
-    idx = np.NaN # set idx to nan to start
-    for i in range(1, len(a2)-1): # for all points except the first and the last
-        if a2[i-1] < 0 and a2[i] > 0: # if difference changes from negative to positive at the point
-            idx = i # grab the inflection point index
-            break # stop the loop
-    return idx # will be NaN if no idx is identified
+    a2 = np.diff(array)  # take the differences of the array
+    idx = np.NaN  # set idx to nan to start
+    for i in range(1, len(a2) - 1):  # for all points except the first and the last
+        if a2[i - 1] < 0 and a2[i] > 0:  # if difference changes from negative to positive at the point
+            idx = i  # grab the inflection point index
+            break  # stop the loop
+    return idx  # will be NaN if no idx is identified
 
 
 def MH_calc(WV_MR, lat, lon, lat_ubound, lat_lbound, lon_ubound, lon_lbound, plotfs, plotspath):
     # Calculates mixing heights from MODIS vertical Water Vapor Mixing Ratio profiles
-    # within an area bounded by the starting lat, lon and ending lat, lon 
+    # within an area bounded by the starting lat, lon and ending lat, lon
     # of a portion of a CALIPSO transect that overlapped a smoke plume
     # INPUTS:
     # - WV_MR = Water Vapor mixing ratio field retrieved from HDF file
@@ -95,82 +96,94 @@ def MH_calc(WV_MR, lat, lon, lat_ubound, lat_lbound, lon_ubound, lon_lbound, plo
     # - list of lons
     # - list of calculated Mixing Heights
     # SYNTAX: lats, lons, MHs = MH_calc(WV_MR, lat, lon, lat_ubound, lat_lbound, lon_ubound, lon_lbound, plotfs, plotspath)
-    
+
     import pandas as pd
     import numpy as np
     import matplotlib.pyplot as plt
     import os
-    
+
     # 0) RESOLVE THE Y-AXIS
     # 20 vertical pressure levels that the atmospheric profiles are resolved at in HPa or mbar:
-    P = [1000, 950, 920, 850, 780, 700, 620, 500, 400, 300, 250, 200, 150, 100, 70, 50, 30, 20, 10, 5]; P.reverse()
-    P = np.array(P)   
+    P = [1000, 950, 920, 850, 780, 700, 620, 500, 400, 300, 250, 200, 150, 100, 70, 50, 30, 20, 10, 5];
+    P.reverse()
+    P = np.array(P)
     # convert pressure to altitude using NWS formula:
-    hft = (1 - (P/1013.24)**0.190284)*145366.45 # result in units of feet
-    hm = 0.3048*hft; hkm = hm/1000;  # convert to meters and kilometers
+    hft = (1 - (P / 1013.24) ** 0.190284) * 145366.45  # result in units of feet
+    hm = 0.3048 * hft;
+    hkm = hm / 1000;  # convert to meters and kilometers
 
-    MHs = [] # store mixing heights
-    lats = [] # store lats
-    lons = [] # store lons
-    cell_counter = 0 # counts all cells within the bounds set
-    for i in range (0, lat.shape[0]):
-        for j in range(0,lat.shape[1]):
-            gridlat = lat[i,j]; gridlon = lon[i,j] # grab the lat/lon corresponding to the grid cell
-            if not np.isnan(gridlat) and not np.isnan(gridlon): # if the lat, lon aren't nans
-                if gridlat >= lat_lbound and gridlat <= lat_ubound and gridlon >= lon_lbound and gridlon <= lon_ubound: # search within bounds
+    MHs = []  # store mixing heights
+    lats = []  # store lats
+    lons = []  # store lons
+    cell_counter = 0  # counts all cells within the bounds set
+    for i in range(0, lat.shape[0]):
+        for j in range(0, lat.shape[1]):
+            gridlat = lat[i, j];
+            gridlon = lon[i, j]  # grab the lat/lon corresponding to the grid cell
+            if not np.isnan(gridlat) and not np.isnan(gridlon):  # if the lat, lon aren't nans
+                if gridlat >= lat_lbound and gridlat <= lat_ubound and gridlon >= lon_lbound and gridlon <= lon_ubound:  # search within bounds
                     # 1) Grab the Water Vapor mixing ratios from the data file
-                    WV_MR = [] # to hold the WV mixing ratios
-                    for h in range(0,20): # for each pressure layer
-                        MR = mo_WV_MR[h, i, j] # grab the WV mixing ratio
+                    WV_MR = []  # to hold the WV mixing ratios
+                    for h in range(0, 20):  # for each pressure layer
+                        MR = mo_WV_MR[h, i, j]  # grab the WV mixing ratio
                         if MR < 0 or MR > 20000:
-                            MR = np.NaN # replace Nan values
+                            MR = np.NaN  # replace Nan values
                         WV_MR.append(MR)
 
                     # 2) Calculate mixing height for the profiles that exist
-                    if np.count_nonzero(np.isnan(WV_MR)) < 20: # if there is at least one non-NaN in the array iwth 20 elements
-                        MR_grad = -np.gradient(WV_MR) # calculate the gradient of the WV mixing ratios
-                        MR_grad = np.append([np.nan], MR_grad[:-1]) # shift the gradients to associated height
+                    if np.count_nonzero(
+                            np.isnan(WV_MR)) < 20:  # if there is at least one non-NaN in the array iwth 20 elements
+                        MR_grad = -np.gradient(WV_MR)  # calculate the gradient of the WV mixing ratios
+                        MR_grad = np.append([np.nan], MR_grad[:-1])  # shift the gradients to associated height
 
                         # slice all below 10km since MH will be lower than 10km altitude (for plotting)
-                        idxslice = 9; h_slice = hkm[idxslice:]; # slice height
-                        WV_MR_slice = WV_MR[idxslice:]; MR_grad_slice = MR_grad[idxslice:] # slice water vapor mixing ratio and gradient
+                        idxslice = 9;
+                        h_slice = hkm[idxslice:];  # slice height
+                        WV_MR_slice = WV_MR[idxslice:];
+                        MR_grad_slice = MR_grad[idxslice:]  # slice water vapor mixing ratio and gradient
 
                         # Find MH boundary:
-                        idxslice2 = 5 # slice the gradient even further to avoid the small gradients near the top  of the 10km
+                        idxslice2 = 5  # slice the gradient even further to avoid the small gradients near the top  of the 10km
                         # find where the inflection point exists:
                         idx = inflection_point(MR_grad_slice[idxslice2:])
 
-                        if not np.isnan(idx): # if the index is not a Nan:
-                            idxMR = idx + idxslice2 # correct for the second slice
-                            cell_counter = cell_counter + 1 # count the cell we successfully pulled MH from
+                        if not np.isnan(idx):  # if the index is not a Nan:
+                            idxMR = idx + idxslice2  # correct for the second slice
+                            cell_counter = cell_counter + 1  # count the cell we successfully pulled MH from
 
                             # 3) Create folder to hold the plotted results if it doesn't already exist:
                             if not os.path.exists(plotspath):
                                 os.mkdir(plotspath)
 
                             # 4) Plot the results:
-                            plt.figure(figsize=(5,5))
+                            plt.figure(figsize=(5, 5))
                             plt.plot(WV_MR_slice, h_slice, 'o-')
                             plt.plot(MR_grad_slice, h_slice, 'ko-', alpha=0.5)
-                            H_MR = h_slice[idxMR] # grab the altitude where the change in WV MR occurs
-                            plt.plot([np.nanmin(MR_grad)-100,np.nanmax(WV_MR)+100], [H_MR,H_MR], 'm--') # plot a straight line at MH estimate
-                            plt.ylabel('Altitude (km)', fontsize=plotfs); plt.xlabel('Water Vapor Mixing Ratio (g/kg)', fontsize=plotfs) # axis labels
-                            plt.ylim(0,10); plt.xlim(np.nanmin(MR_grad)-100, np.nanmax(WV_MR)+100) # axis limits
-                            plt.legend(['MR', 'MR gradient', 'MH estimate'], fontsize=plotfs) # legend entries
-                            plt.xticks(fontsize=plotfs); plt.yticks(fontsize=plotfs)
-                            plt.grid(); plt.tight_layout()
-                            plt.savefig(plotspath+'WV_MR_'+str(time)+'_'+str(i).zfill(3)+'_'+str(j).zfill(3)+'.jpg', dpi=200)
-    #                         plt.show()
-                              plt.close() 
-        
+                            H_MR = h_slice[idxMR]  # grab the altitude where the change in WV MR occurs
+                            plt.plot([np.nanmin(MR_grad) - 100, np.nanmax(WV_MR) + 100], [H_MR, H_MR],
+                                     'm--')  # plot a straight line at MH estimate
+                            plt.ylabel('Altitude (km)', fontsize=plotfs);
+                            plt.xlabel('Water Vapor Mixing Ratio (g/kg)', fontsize=plotfs)  # axis labels
+                            plt.ylim(0, 10);
+                            plt.xlim(np.nanmin(MR_grad) - 100, np.nanmax(WV_MR) + 100)  # axis limits
+                            plt.legend(['MR', 'MR gradient', 'MH estimate'], fontsize=plotfs)  # legend entries
+                            plt.xticks(fontsize=plotfs);
+                            plt.yticks(fontsize=plotfs)
+                            plt.grid();
+                            plt.tight_layout()
+                            plt.savefig(plotspath + 'WV_MR_' + str(time) + '_' + str(i).zfill(3) + '_' + str(j).zfill(
+                                3) + '.jpg', dpi=200)
+                            #plt.show()
+                            plt.close()
+
                             # 4) Store results in a table
                             lats.append(gridlat)
                             lons.append(gridlon)
-                            MHs.append(H_MR) # store estimated mixing height
+                            MHs.append(H_MR)  # store estimated mixing height
 
                     else:
-                        print('all NaNs')  
-                    
+                        print('all NaNs')
+
     print(cell_counter)
     return lats, lons, MHs
 
