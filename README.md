@@ -41,17 +41,10 @@ We loop through MODIS HDF-format files on days of interest, select the data with
 *Inputs* <br />
 List of desired dates, lat / lon; MODIS files
 
-### In `Compare_Mixing_Heights` 
-We perform statistical analyses with the outputs of the other tools to determine systematic bias in NWS estimates.
-
-*Inputs* <br />
-Outputs of other Notebooks
-
 ## To run
 1. Run `ASMOKRE`. Correct output from MSL to AGL in Arc
 2. Run `Scrape_NWS`. Follow instructions in script for staging data for comparison (merging).
 3. Run `MOD07_processing`
-4. Run `Compare_mixing_heights`
 
 ## Recommended file structure
 1. A folder for CALIPSO files of interest
