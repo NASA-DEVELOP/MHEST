@@ -23,9 +23,9 @@ import matplotlib.pyplot as plt
 # In[17]:
 
 
-basepath = "Testfiles_softwarerelease/MOD07/" # set main working directory - CHANGE
-csvpath = "Testfiles_softwarerelease/input_csvs/" # path to the folder with the csv file containing the smoke plume event info - CHANGE
-outputpath = 'Testfiles_softwarerelease/outputs/'
+basepath = "Tutorial_files/MOD07/" # set main working directory - CHANGE
+csvpath = "Tutorial_files/input_csvs/" # path to the folder with the csv file containing the smoke plume event info - CHANGE
+outputpath = 'Tutorial_files/outputs/'
 if not os.path.exists(outputpath):
     os.mkdir(outputpath)
 overlaps_df = pd.read_csv(csvpath+'calipso_transects.csv') # read in the info into a pandas dataframe
